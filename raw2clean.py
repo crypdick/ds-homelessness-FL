@@ -12,13 +12,15 @@ CSV_full_dirs = [os.path.join(RAW_DATA_PATH, fname) for fname in CSV_fnames]
 MIN_ROW_LEN = 35
 N_LEADING_COLS = 8  # all entries have this many leading cols
 N_TRAILING_COLS = -14  # 13 trailing cols
-for csv_file in CSV_full_dirs:
-    with open(csv_file, 'r', newline='') as open_file:
-        with open('my_bookings_cleaned.csv', 'w') as my_bookings_cleaned_csv:
-            with open('my_addl_charges.csv', 'w') as my_addl_charges_csv:
+with open('my_bookings_cleaned.csv', 'w') as my_bookings_cleaned_csv:
+    with open('my_addl_charges.csv', 'w') as my_addl_charges_csv:
+        writer = csv.writer(my_bookings_cleaned_csv)
+        addl_writer = csv.writer(my_addl_charges_csv)
+
+        for csv_file in CSV_full_dirs:
+            with open(csv_file, 'r', newline='') as open_file:
                 reader = csv.reader(open_file, delimiter=',', quotechar='"')
-                writer = csv.writer(my_bookings_cleaned_csv)
-                addl_writer = csv.writer(my_addl_charges_csv)
+                print("starting ", csv_file)
 
                 joined_row = []
                 for i, row in enumerate(reader):
@@ -31,7 +33,8 @@ for csv_file in CSV_full_dirs:
                         if len(joined_row) < MIN_ROW_LEN:
                             raise Exception("Not expecting rows with less than {} columns".format(MIN_ROW_LEN))
 
-                        joined_row = [field.strip() for field in joined_row]  # clean out random trailing spaces
+                        # clean out random trailing spaces, replace commas inside of strings with periods
+                        joined_row = [field.strip().replace(",", ".") for field in joined_row]
 
                         # joined row parsing
 
@@ -59,16 +62,16 @@ for csv_file in CSV_full_dirs:
 
                         # parse end
                         trailing_vec = joined_row[N_TRAILING_COLS:]
-                        address = "{},{}".format(trailing_vec[0], trailing_vec[1])
-                        address = address[9:]  # strip "ADDRESS: "
-                        place_of_birth = trailing_vec[2]
-                        place_of_birth = place_of_birth[5:]  # strip "POB: "
-                        releaseDate = trailing_vec[7]
-                        releaseDate = releaseDate[14:]  # strip "RELEASE DATE: "
-                        releaseCode = trailing_vec[8]
-                        releaseCode = releaseCode[14:]  # strip "RELEASE CODE: "
-                        SOID = trailing_vec[9]
-                        SOID = SOID[6:]  # strip "SOID: "
+                        address = "{}.{}".format(trailing_vec[0], trailing_vec[1]).replace("ADDRESS: ","")  # combine two cols
+                        # address = address[9:]  # strip "ADDRESS: "
+                        place_of_birth = trailing_vec[2].replace("POB: ","")
+                        # place_of_birth = place_of_birth[5:]  # strip "POB: "
+                        releaseDate = trailing_vec[7].replace("RELEASE DATE: ","")
+                        # releaseDate = releaseDate[14:]  # strip "RELEASE DATE: "
+                        releaseCode = trailing_vec[8].replace("RELEASE CODE: ","")
+                        # releaseCode = releaseCode[14:]  # strip "RELEASE CODE: "
+                        SOID = trailing_vec[9].replace("SOID: ","")
+                        # SOID = SOID[6:]  # strip "SOID: "
                         # print(address,place_of_birth,releaseDate,releaseCode,SOID)
 
 
