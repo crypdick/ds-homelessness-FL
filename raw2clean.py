@@ -34,7 +34,8 @@ with open('my_bookings_cleaned.csv', 'w') as my_bookings_cleaned_csv:
                             raise Exception("Not expecting rows with less than {} columns".format(MIN_ROW_LEN))
 
                         # clean out random trailing spaces, replace commas inside of strings with periods
-                        joined_row = [field.strip().replace(",", ".") for field in joined_row]
+                        joined_row = [field.strip() for field in joined_row]
+                        joined_row[1:] = [field.replace(",", ".") for field in joined_row[1:]]  # exclude name field
 
                         # joined row parsing
 
@@ -47,24 +48,26 @@ with open('my_bookings_cleaned.csv', 'w') as my_bookings_cleaned_csv:
                         try:
                             race, sex, ethnicity, DOB = race_sex_eth_DOB.split(" / ")
                         except ValueError:  # some people missing DOB
+                            # print("not enough values to unpack in str {} \n from joined row {}".format(race_sex_eth_DOB,
+                            #                                                                            joined_row))
                             race, sex, ethnicity = race_sex_eth_DOB.split(" / ")
                             DOB = "NaT"
-                            # print("not enough values to unpack in str {} \n from joined row {}".format(race_sex_eth_DOB, joined_row))
 
                         # splitting crimes
                         crimes_vec = joined_row[N_LEADING_COLS:N_TRAILING_COLS]
                         full_crimes_list = []
                         while len(crimes_vec) >= 1:
                             single_crime = crimes_vec[:4]  # each loop grab first 4 cols
-                            if single_crime[0].strip() != '':  # make sure crime vec isn't empty string
+                            # make sure crime vec isn't empty string. sometimes first one is legitimately empty
+                            if single_crime[0].strip() != '' or single_crime[1].strip() != '' :
                                 full_crimes_list.append(single_crime)
                             crimes_vec = crimes_vec[7:]  # indexes 4:7 are always blank. beyond 7 are additional crimes.
 
                         # parse end
                         trailing_vec = joined_row[N_TRAILING_COLS:]
-                        address = "{}.{}".format(trailing_vec[0], trailing_vec[1]).replace("ADDRESS: ","")  # combine two cols
+                        address = trailing_vec[0].replace("ADDRESS: ","")  # combine two cols
                         # address = address[9:]  # strip "ADDRESS: "
-                        place_of_birth = trailing_vec[2].replace("POB: ","")
+                        place_of_birth = "{}.{}".format(trailing_vec[1], trailing_vec[2]).replace("POB: ","")
                         # place_of_birth = place_of_birth[5:]  # strip "POB: "
                         releaseDate = trailing_vec[7].replace("RELEASE DATE: ","")
                         # releaseDate = releaseDate[14:]  # strip "RELEASE DATE: "
