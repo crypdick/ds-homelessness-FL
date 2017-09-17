@@ -1,2 +1,2 @@
 tr -d '"' < data/clean/booking_addl-charge.clean | diff --width=200 --suppress-common-lines --ignore-all-space my_addl_charges.csv -  | colordiff | ansi2html > my_addl_vs_gillman_addl.diff.html
-
+diff --width=200 --suppress-common-lines --ignore-all-space <(tr -d '".' < my_bookings_cleaned.csv) <(tr -d '."' < data/clean/bookings.clean)

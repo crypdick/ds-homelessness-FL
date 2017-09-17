@@ -1,0 +1,128 @@
+sqlite> .show
+        echo: off
+         eqp: off
+     explain: auto
+     headers: off
+        mode: list
+   nullvalue: ""
+      output: stdout
+colseparator: "|"
+rowseparator: "\n"
+       stats: off
+       width: 
+sqlite> .schema
+CREATE TABLE booking_addl_charge(
+  "bookingNumber" TEXT,
+  "chargeType" TEXT,
+  "charge" TEXT,
+  "court" TEXT,
+  "caseNumber" TEXT
+);
+CREATE TABLE homeless_addresses(
+  "address" TEXT,
+  "rank" TEXT,
+  "description" TEXT
+);
+CREATE TABLE "bookingsA"(
+  bookingNumber TEXT,
+  name TEXT,
+  race TEXT,
+  sex TEXT,
+  DOB TEXT,
+  arrestDate TEXT,
+  bookingDate TEXT,
+  releaseDate TEXT,
+  releaseCode TEXT,
+  releaseRemarks TEXT
+);
+CREATE TABLE homeless_charges(
+  "charge" TEXT,
+  "rank" TEXT
+);
+CREATE TABLE "bookingsB" ("name" TEXT,
+  "bookingNumber" TEXT,
+  "agency" TEXT,
+  "ABN" TEXT,
+  "race" TEXT,
+  "sex" TEXT,
+  "e" TEXT,
+  "DOB" TEXT,
+  "chargeType" TEXT,
+  "charge" TEXT,
+  "court" TEXT,
+  "caseNumber" TEXT,
+  "address" TEXT, city text,  "POB" TEXT,
+  "releaseDate" TEXT,
+  "releaseCode" TEXT,
+  "SOID" TEXT
+);
+CREATE INDEX bookingsA1_booking on "bookingsA" (bookingNumber);
+CREATE INDEX booking_soid on bookingsB (bookingNumber,SOID);
+CREATE INDEX booking_charge on bookingsB (charge);
+CREATE INDEX booking_address on bookingsB (address);
+
+
+# select unique races, ethnicities
+SELECT DISTINCT(race) FROM bookingsB;
+# W, I, A, U, b, w, a
+SELECT DISTINCT(e) FROM bookingsB;
+# N, H, U, h, n, u
+
+# a. How many arrests are there for each race and ethnicity?
+select upper(race), upper(e), count(*) from bookingsB GROUP BY upper(race), upper(e);
+
+# races: A asian, B  black, W white, U ?, I ? (indian??)
+# ethnicities: H hispanic, Non-hispanic, U ?
+A|H|32
+A|N|3519
+A|U|57
+B|H|9627
+B|N|449775
+B|U|370
+I|H|7
+I|N|509
+I|U|9
+U|H|226
+U|N|150
+U|U|10
+W|H|180735
+W|N|577119
+W|U|646
+
+select upper(race), count(*) from bookingsB GROUP BY upper(race);
+A|3608
+B|459772
+I|525
+U|386
+W|758500
+
+select upper(e), count(*) from bookingsB GROUP BY upper(e);
+H|190627
+N|1031072
+U|1092
+
+
+#b. How do we know if someone is homeless?
+there are 1658 bookings with "homeless" written in the address field. There is also 205 with an address of "NONE". If we wanted to make some assumptions, there are also 75,000 entries with no address, 928 with UNKNOWN, and 612 with "UNK".
+
+In addition, I sorted the list by most arrests and Google'd them. Most of them were either homeless shelters or places that provide services for homeless people.
+SALVATION ARMY|192
+13815 SALVATION ARMY LN|182
+3302 FLORIDA AV N|355 -- shelter
+6220 NEBRASKA AV N
+2301 TAMPA ST N
+
+SELECT address, COUNT(*)
+FROM bookingsB
+GROUP BY address
+ORDER BY COUNT(*) DESC
+LIMIT 30;
+
+#c. For people who are homeless, how many arrests are there for each charge?
+
+
+SELECT address, COUNT(*)
+FROM bookingsB
+WHERE upper(address) = upper('2002 N Florida Avenue');
+
+
