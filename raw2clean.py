@@ -4,8 +4,6 @@ import csv
 PROJECT_PATH = '/home/crypdick/Apps/masters/dbs/ds-homelessness-FL'
 RAW_DATA_PATH = os.path.join(PROJECT_PATH, 'data', 'raw')
 os.chdir(PROJECT_PATH)
-
-# CSV_fnames = sorted(os.listdir(os.path.join(os.path.realpath('.'), RAW_DATA_PATH)))
 CSV_fnames = sorted([fname for fname in os.listdir(RAW_DATA_PATH) if fname.endswith('.csv')])
 CSV_full_dirs = [os.path.join(RAW_DATA_PATH, fname) for fname in CSV_fnames]
 
@@ -23,7 +21,7 @@ with open('my_bookings_cleaned.csv', 'w') as my_bookings_cleaned_csv:
                 print("starting ", csv_file)
 
                 joined_row = []
-                for i, row in enumerate(reader):
+                for row in reader:
                     if 'RELEASE DATE' not in row[0]:
                         joined_row.extend(row)  # have not reached end of person entry. continue extending joined row.
                     else:  # we found last row for single person
