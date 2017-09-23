@@ -82,7 +82,7 @@ with open('my_bookings_cleaned.csv', 'w') as my_bookings_cleaned_csv:
                         if len(full_crimes_list) > 1:
                             addl_charges = full_crimes_list[1:]
                             for charge in addl_charges:
-                                clean_addl_booking = [booking_n] + charge  # Dr gillman's clean file has booking#
+                                clean_addl_booking = [booking_n] + charge  # Dr gillman's clean has booking# first col
                                 addl_writer.writerow(clean_addl_booking)
 
                         # clear for next booking
